@@ -1,0 +1,106 @@
+# iris.py
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Step 1: Load dataset from CSV
+df = pd.read_csv("Iris.csv")
+
+print("Dataset shape:", df.shape)
+print(df.head(), "\n")
+
+# Step 2: Convert species names to numeric codes
+df["Species"] = df["Species"].astype("category").cat.codes
+
+# Features (X) and Labels (y)
+X = df.drop("Species", axis=1).values
+y = df["Species"].values
+
+# Step 3: Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Step 4: Scale features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Step 5: Initialize classifiers
+models = {
+    "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5),
+    "Logistic Regression": LogisticRegression(max_iter=200),
+    "Decision Tree": DecisionTreeClassifier(random_state=42),
+    "Support Vector Machine": SVC()
+}
+
+# Step 6: Train, evaluate, and plot confusion matrix
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    print("="*60)
+    print(f"Model: {name}")
+    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print("Classification Report:\n", classification_report(y_test, y_pred))
+
+    # Confusion Matrix
+    cm = confusion_matrix(y_test, y_pred)
+    plt.figure(figsize=(5, 4))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+                xticklabels=["setosa", "versicolor", "virginica"],
+                yticklabels=["setosa", "versicolor", "virginica"])
+    plt.title(f"Confusion Matrix - {name}")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.show()
+
+
+Dataset shape: (150, 6)
+   Id  SepalLengthCm  SepalWidthCm  PetalLengthCm  PetalWidthCm      Species
+0   1            5.1           3.5            1.4           0.2  Iris-setosa
+1   2            4.9           3.0            1.4           0.2  Iris-setosa
+2   3            4.7           3.2            1.3           0.2  Iris-setosa
+3   4            4.6           3.1            1.5           0.2  Iris-setosa
+4   5            5.0           3.6            1.4           0.2  Iris-setosa
+
+ k nearest neighbours
+
+Accuracy: 1.0
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00        10
+           1       1.00      1.00      1.00         9
+           2       1.00      1.00      1.00        11
+
+    accuracy                           1.00        30
+   macro avg       1.00      1.00      1.00        30
+weighted avg       1.00      1.00      1.00        30
+
+ logistic regression
+
+Accuracy: 1.0
+Classification Report:
+(same as above, all 1.0 scores)
+
+ decision tree
+
+ Accuracy: 1.0
+Classification Report:
+(same as above, all 1.0 scores)
+
+ support vector machine
+
+Accuracy: 1.0
+Classification Report:
+(same as above, all 1.0 scores)
+
